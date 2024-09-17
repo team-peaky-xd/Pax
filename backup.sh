@@ -1,10 +1,11 @@
 #!/bin/bash
 
+# Define colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
-NC='\033[0m'
+NC='\033[0m' # No Color
 
 BACKUP_DIR="$HOME/termux_backup"
 STORAGE_FILE="/sdcard/termux_backup/termux_backup.tar.gz"
@@ -24,7 +25,12 @@ backup_termux() {
     echo -e "${BLUE}Starting Termux backup with $THREADS threads...${NC}"
     mkdir -p "$BACKUP_DIR"
     EXCLUDE_LIST="--exclude=$PREFIX/tmp --exclude=$PREFIX/var/tmp --exclude=$PREFIX/lib/apt/lists/*"
-    tar -cvf - $EXCLUDE_LIST -C "$PREFIX" . -C "$HOME" .termux .termuxrc | pv | pigz -p $THREADS > "$STORAGE_FILE"
+    if [ -f "$HOME/.termuxrc" ]; then
+        tar -cvf - $EXCLUDE_LIST -C "$PREFIX" . -C "$HOME" .termux .termuxrc | pv | pigz -p $THREADS > "$STORAGE_FILE"
+    else
+        tar -cvf - $EXCLUDE_LIST -C "$PREFIX" . -C "$HOME" .termux | pv | pigz -p $THREADS > "$STORAGE_FILE"
+    fi
+
     echo -e "${GREEN}Backup completed and saved to $STORAGE_FILE${NC}"
 }
 
